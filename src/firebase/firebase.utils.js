@@ -13,14 +13,39 @@ const config =  {
     measurementId: "G-3VHH3KTCP4"
   };
 
+
 firebase.initializeApp(config);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
 const provider = new firebase.auth.GoogleAuthProvider();
-// firebase.auth().languageCode = 'pt';
 provider.setCustomParameters({ prompt: 'select_account' })
 export const SignInWithGoogle = () => auth.signInWithPopup(provider)
+
+export const createUserProfileDocument = async(userAuth, otherData) =>{
+  if(!userAuth) return;
+  const userRef= firestore.doc(`users/${userAuth.uid}`);
+  const snapShot = await userRef.get()
+
+  if(!snapShot.exists){
+    const {displayName, email} = userAuth;
+    const createdAt = new Date();
+    
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...otherData
+      })
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+  return userRef;
+}
+
+
 
 export default firebase;
