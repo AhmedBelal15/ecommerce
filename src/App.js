@@ -7,7 +7,7 @@ import SignInAndOut from './Pages/SignIn-outPage/SignIn-outPage.Component'
 import {auth, createUserProfileDocument} from './firebase/firebase.utils'
 import { connect } from 'react-redux'
 import {setCurrentUser} from './Redux/user/user.actions'
-import {Switch, Route} from 'react-router-dom';
+import {Switch, Route, Redirect} from 'react-router-dom';
 
 class App extends Component {
   
@@ -48,11 +48,22 @@ class App extends Component {
     <Switch>
     <Route exact path='/' component={Homepage} />
     <Route exact path='/shop' component={ShopPage} />
-    <Route exact path='/sign-in' component={SignInAndOut} />
+    <Route exact path='/sign-in' render={()=>
+      this.props.currentUser ? (<Redirect to='/' />):
+      (<SignInAndOut />)
+    } /> 
     </Switch>
     </Fragment>
     );
   }
+}
+
+const mapStateToProps = ({user}) => {
+  return(
+    {
+      currentUser: user.currentUser
+    }
+  )
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -63,4 +74,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);
